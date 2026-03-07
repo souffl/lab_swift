@@ -11,4 +11,3 @@ struct Client: Codable, Hashable, Identifiable {
     let password: String;
 }
 
-
