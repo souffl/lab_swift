@@ -8,7 +8,7 @@
 protocol ContextService{
     //todo: mb change bool
     func setContext(context: ClientContext) -> Bool;
-    //to save anonymus cart
+    func getContext() -> ClientContext
     func getCart() -> [Item]
     func addItem(item:Item) -> Result<Void,Error> //result to get alarms if something is bad
     func deleteItem(item:Item) -> Result<Void,Error>

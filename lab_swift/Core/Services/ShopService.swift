@@ -11,10 +11,10 @@ enum IssueResult: Equatable {
 }
 
 protocol ShopService {
-    func getShopName() -> String
-    func getItems() -> [Item]
-    func findItem(by itemID: Int) -> Item?
-    func hasItem(itemID: Int) -> Bool
-    func issueItem(itemID: Int, quantity: Int) -> IssueResult
+    func getShops() -> [Shop]
+    func getItems(shopID: Int) -> [Item]
+    func findItem(shopID: Int, by itemID: Int) -> Item?
+    func hasItem(shopID: Int, itemID: Int) -> Bool
+    func issueItem(shopID: Int,itemID: Int, quantity: Int) -> IssueResult
     
 }
