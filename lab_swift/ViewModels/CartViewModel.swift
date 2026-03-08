@@ -21,16 +21,16 @@ class CartViewModel {
     var onFailPayment:((Error)->())?
     var onNeedLogin: (() -> Void)?
     
-    func totalPrice() -> Decimal
+    func totalPrice() -> Decimal {return 1} //todo:change
     
-    func getCart() -> [Item]
+    func getCart() -> [Item] { return [] }
     
-    func deleteItem(item: Item)
+    func deleteItem(item: Item) {}
     
-    func increaseItemCount(item:Item)
+    func increaseItemCount(item:Item) {}
     
-    func decreaseItemCount(item:Item)
+    func decreaseItemCount(item:Item) {}
     
-    func payOrder()
+    func payOrder() {}
     
 }

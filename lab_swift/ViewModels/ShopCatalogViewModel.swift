@@ -10,8 +10,8 @@ import Foundation
 final class ShopCatalogViewModel {
     private let shopService: ShopService
     private(set) var shops: [Shop]
-    onShopSelected: ((Shop) -> Void)?
-    onLoadFailed: ((String?) -> Void)?
+    var onShopSelected: ((Shop) -> Void)?
+    var onLoadFailed: ((String?) -> Void)?
     
     init(service: ShopService)
     {
@@ -24,7 +24,7 @@ final class ShopCatalogViewModel {
         shops = shopService.getShops();
     }
     
-    func selectShop(_ shop: Shop)
+    func selectShop(_ shop: Shop){}
     
 }
 

@@ -8,7 +8,7 @@
 class ShopViewModel {
     private let shopService: ShopService
     private let contextService: ContextService
-    private(set) let shop: Shop
+    let shop: Shop
     
     var onItemSelected: ((Item) -> Void)?
     
@@ -25,7 +25,7 @@ class ShopViewModel {
         return shopService.getItems(shopID: shop.id)
     }
     
-    func addItem(item:Item)
+    func addItem(item:Item) {}
     
     
     
