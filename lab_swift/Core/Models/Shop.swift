@@ -11,8 +11,8 @@ struct Shop: Codable, Identifiable{
     let location: String;
     
     init(id: Int, name:String, location: String) {
-        self.location = location;
-        self.name = name;
-        self.id = id;
+        self.location = location
+        self.name = name
+        self.id = id
     }
 }
