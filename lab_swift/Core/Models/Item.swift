@@ -7,11 +7,11 @@
 import Foundation
 
 struct Item: Codable, Identifiable, Equatable {
-    let id: Int;
-    let shopID: Int;
-    let cost: Decimal;
-    let name: String;
-    
+    let id: Int
+    let shopID: Int
+    let cost: Decimal
+    let name: String
+
     init(id: Int, shop_id: Int, cost: Decimal, name: String) {
         self.id = id
         self.shopID = shop_id
