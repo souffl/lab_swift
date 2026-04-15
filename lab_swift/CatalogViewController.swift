@@ -7,10 +7,9 @@
 
 import UIKit
 
-class CatalogViewController: UIViewController
-{
-    let viewModel: ShopCatalogViewModel
-    let router: AppRouter
+final class CatalogViewController: UIViewController {
+    var viewModel: ShopCatalogViewModel
+    var router: AppRouter
     
     init(viewModel: ShopCatalogViewModel, router: AppRouter) {
         self.viewModel = viewModel
@@ -24,6 +23,15 @@ class CatalogViewController: UIViewController
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // meowmeow
+        view.backgroundColor = .systemBackground
+        navigationItem.title = "Магазины"
+
+        viewModel.onStateChanged = { state in
+            print("Catalog state: \(state)")
+        }
+
+        Task {
+            await viewModel.loadShops()
+        }
     }
 }

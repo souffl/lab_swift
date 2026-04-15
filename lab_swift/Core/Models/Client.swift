@@ -6,7 +6,7 @@
 //
 
 struct Client: Codable, Hashable, Identifiable {
-    let id: Int
+    let id: String
     let login: String
     let password: String
 }

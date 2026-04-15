@@ -14,15 +14,14 @@ class ShopViewModel {
     
     var onAddToCartFailed: ((String) -> Void)?
     
-    init(shopService: ShopService, shop: Shop, context:ContextService) {
-        self.shopService = shopService;
-        self.shop = shop;
-        self.contextService = context;
+    init(shopService: ShopService, shop: Shop, context: ContextService) {
+        self.shopService = shopService
+        self.shop = shop
+        self.contextService = context
     }
     
-    
-    func getItems() -> [Item] {
-        return shopService.getItems(shopID: shop.id)
+    func getItems() async -> [Item] {
+        await shopService.getItems(shopID: shop.id)
     }
     
     func addItem(item:Item) {}
