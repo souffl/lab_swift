@@ -21,15 +21,4 @@ struct ItemDTO: Decodable {
         case price
         case quantity
     }
-
-    func toDomainItem(shopID: String) -> Item {
-        let decimalPrice = Decimal(string: price) ?? .zero
-
-        return Item(
-            id: id,
-            shopID: shopID,
-            cost: decimalPrice,
-            name: name
-        )
-    }
 }

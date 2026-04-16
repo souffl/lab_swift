@@ -52,7 +52,7 @@ final class NetworkShopService: ShopService {
     func getShops() async throws -> [Shop] {
         do {
             let shops = try await fetchShopDTOs()
-            return shops.compactMap { $0.toDomainShop() }
+            return shops.compactMap { toDomainShop(shopDto:$0) }
         } catch let error as NetworkError {
             throw ShopServiceError.network(error)
         } catch {
@@ -68,7 +68,7 @@ final class NetworkShopService: ShopService {
                 return []
             }
 
-            return shopDTO.products.map { $0.toDomainItem(shopID: shopID) }
+            return shopDTO.products.map { toDomainItem(shopID: shopID, itemDto:$0) }
         } catch {
             return []
         }
@@ -82,9 +82,9 @@ final class NetworkShopService: ShopService {
                 return nil
             }
 
-            return shopDTO.products
-                .first(where: { $0.id == String(itemID) })?
-                .toDomainItem(shopID: shopID)
+            let itemDTO = shopDTO.products
+                .first(where: { $0.id == String(itemID) })
+            return toDomainItem(shopID: shopID, itemDto: itemDTO!)
         } catch {
             return nil
         }
@@ -114,7 +114,7 @@ final class NetworkShopService: ShopService {
                 return .outOfStock
             }
 
-            return .success(item: itemDTO.toDomainItem(shopID: shopID))
+            return .success(item: toDomainItem(shopID: shopID, itemDto: itemDTO))
         } catch {
             return .itemNotFound
         }
@@ -133,5 +133,23 @@ final class NetworkShopService: ShopService {
             shops = try localLoader.loadShops()
         }
         return shops
+    }
+    private func toDomainShop(shopDto: ShopDTO) -> Shop? {
+        Shop(
+            id: shopDto.id,
+            name: shopDto.name,
+            location: "\(shopDto.city), \(shopDto.street)"
+        )
+    }
+    
+    private func toDomainItem(shopID: String, itemDto: ItemDTO) -> Item {
+        let decimalPrice = Decimal(string: itemDto.price) ?? .zero
+
+        return Item(
+            id: itemDto.id,
+            shopID: shopID,
+            cost: decimalPrice,
+            name: itemDto.name
+        )
     }
 }

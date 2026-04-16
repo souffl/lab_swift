@@ -29,11 +29,5 @@ struct ShopDTO: Decodable {
         case products
     }
 
-    func toDomainShop() -> Shop? {
-        Shop(
-            id: id,
-            name: name,
-            location: "\(city), \(street)"
-        )
-    }
+   
 }
