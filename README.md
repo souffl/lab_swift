@@ -168,13 +168,13 @@ lab_swift/
 
 ### Используемое API
 
-- Используется mock API: `https://69e00f1a29c070e6597b15f3.mockapi.io/floristshop`
+- Используется локальный `json-server`: `http://localhost:3000`
 - Endpoint для списка магазинов: `GET /shops`
-- Полный URL: `https://69e00f1a29c070e6597b15f3.mockapi.io/floristshop/shops`
+- Полный URL: `http://localhost:3000/shops`
 
 ### Пример ответа
 
-API возвращает корневой массив магазинов. У каждого магазина есть вложенный массив `products`.
+API возвращает объект с ключом `shops` в `db.json`, а endpoint `GET /shops` отдаёт корневой массив магазинов. У каждого магазина есть вложенный массив `products`.
 
 Пример одного элемента ответа:
 
@@ -216,8 +216,10 @@ API возвращает корневой массив магазинов. У к
 
 ### Как проверить
 
-1. Запустить приложение.
-2. Авторизоваться через экран логина.
-3. После успешного входа открывается каталог магазинов, где `ShopCatalogViewModel.loadShops()` вызывает `ShopService.getShops()`.
-4. Для проверки товаров магазина можно вызвать `ShopService.getItems(shopID:)`.
-5. Если сеть недоступна, `NetworkShopService` автоматически переключается на локальный файл `lab_swift/Resources/shops.json`.
+1. Поднять локальный сервер:
+   - `json-server --watch db.json --port 3000`
+2. Запустить приложение.
+3. Авторизоваться через экран логина.
+4. После успешного входа открывается каталог магазинов, где `ShopCatalogViewModel.loadShops()` вызывает `ShopService.getShops()`.
+5. Для проверки товаров магазина можно вызвать `ShopService.getItems(shopID:)`.
+6. Если сервер недоступен, `NetworkShopService` автоматически переключается на локальный файл `lab_swift/Resources/shops.json`.

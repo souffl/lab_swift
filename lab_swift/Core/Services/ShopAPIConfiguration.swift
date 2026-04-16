@@ -10,11 +10,19 @@ import Foundation
 struct ShopAPIConfiguration {
     let baseURL: URL
 
-    init(baseURL: URL = URL(string: "https://69e00f1a29c070e6597b15f3.mockapi.io/floristshop")!) {
+    init(baseURL: URL = URL(string: "http://localhost:3000")!) {
         self.baseURL = baseURL
     }
 
     static func fromBundle() -> ShopAPIConfiguration? {
-        ShopAPIConfiguration()
+        if
+            let rawURL = Bundle.main.object(forInfoDictionaryKey: "SHOP_API_BASE_URL") as? String,
+            let parsedURL = URL(string: rawURL),
+            !rawURL.isEmpty
+        {
+            return ShopAPIConfiguration(baseURL: parsedURL)
+        }
+
+        return ShopAPIConfiguration()
     }
 }
