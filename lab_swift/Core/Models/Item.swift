@@ -7,14 +7,14 @@
 import Foundation
 
 struct Item: Codable, Identifiable, Equatable {
-    let id: Int
-    let shopID: Int
+    let id: String
+    let shopID: String
     let cost: Decimal
     let name: String
 
-    init(id: Int, shop_id: Int, cost: Decimal, name: String) {
+    init(id: String, shopID: String, cost: Decimal, name: String) {
         self.id = id
-        self.shopID = shop_id
+        self.shopID = shopID
         self.cost = cost
         self.name = name
     }

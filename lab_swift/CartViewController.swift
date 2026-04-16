@@ -8,8 +8,8 @@ import UIKit
 
 class CartViewController: UIViewController
 {
-    let viewModel: CartViewModel
-    let router: AppRouter
+    var viewModel: CartViewModel
+    var router: AppRouter
     
     init(viewModel: CartViewModel, router: AppRouter) {
         self.viewModel = viewModel

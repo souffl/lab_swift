@@ -1,0 +1,108 @@
+[
+  {
+    "id": "1",
+    "name": "Цветочный Рай",
+    "avatar_url": "https://picsum.photos/seed/shop1/300/200",
+    "city": "Москва",
+    "street": "ул. Тверская, 15",
+    "rating": 4.8,
+    "work_hours": "09:00 - 21:00",
+    "phone": "+7 (495) 123-45-67",
+    "products": [
+      {
+        "id": "1",
+        "name": "Роза красная",
+        "avatar": "https://picsum.photos/seed/rose1/200/200",
+        "price": "150.00",
+        "quantity": 45
+      },
+      {
+        "id": "2",
+        "name": "Тюльпаны микс (3 шт.)",
+        "avatar": "https://picsum.photos/seed/tulip1/200/200",
+        "price": "299.00",
+        "quantity": 23
+      },
+      {
+        "id": "3",
+        "name": "Пионы белые",
+        "avatar": "https://picsum.photos/seed/peony1/200/200",
+        "price": "450.00",
+        "quantity": 12
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "БукетМейкер",
+    "avatar_url": "https://picsum.photos/seed/shop2/300/200",
+    "city": "Санкт-Петербург",
+    "street": "Невский проспект, 28",
+    "rating": 4.5,
+    "work_hours": "10:00 - 22:00",
+    "phone": "+7 (812) 987-65-43",
+    "products": [
+      {
+        "id": "4",
+        "name": "Гвоздики (5 шт.)",
+        "avatar": "https://picsum.photos/seed/carnation1/200/200",
+        "price": "199.00",
+        "quantity": 67
+      },
+      {
+        "id": "5",
+        "name": "Хризантема кустовая",
+        "avatar": "https://picsum.photos/seed/chrys1/200/200",
+        "price": "320.00",
+        "quantity": 8
+      },
+      {
+        "id": "6",
+        "name": "Альстромерия",
+        "avatar": "https://picsum.photos/seed/alstro1/200/200",
+        "price": "180.00",
+        "quantity": 34
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Flower Studio",
+    "avatar_url": "https://picsum.photos/seed/shop3/300/200",
+    "city": "Екатеринбург",
+    "street": "ул. Ленина, 42",
+    "rating": 4.9,
+    "work_hours": "08:00 - 20:00",
+    "phone": "+7 (343) 555-12-34",
+    "products": [
+      {
+        "id": "7",
+        "name": "Роза белая",
+        "avatar": "https://picsum.photos/seed/rose2/200/200",
+        "price": "170.00",
+        "quantity": 56
+      },
+      {
+        "id": "8",
+        "name": "Герберы микс",
+        "avatar": "https://picsum.photos/seed/gerbera1/200/200",
+        "price": "210.00",
+        "quantity": 19
+      },
+      {
+        "id": "9",
+        "name": "Эустома",
+        "avatar": "https://picsum.photos/seed/eustoma1/200/200",
+        "price": "280.00",
+        "quantity": 27
+      },
+      {
+        "id": "10",
+        "name": "Букет 'Нежность'",
+        "avatar": "https://picsum.photos/seed/bouquet1/200/200",
+        "price": "1290.00",
+        "quantity": 5
+      }
+    ]
+  }
+]

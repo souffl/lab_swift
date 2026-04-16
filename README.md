@@ -161,3 +161,65 @@ lab_swift/
 ├── SceneDelegate.swift
 └── README.md
 ```
+
+---
+
+## Лабораторная 4
+
+### Используемое API
+
+- Используется локальный `json-server`: `http://localhost:3000`
+- Endpoint для списка магазинов: `GET /shops`
+- Полный URL: `http://localhost:3000/shops`
+
+### Пример ответа
+
+API возвращает объект с ключом `shops` в `db.json`, а endpoint `GET /shops` отдаёт корневой массив магазинов. У каждого магазина есть вложенный массив `products`.
+
+Пример одного элемента ответа:
+
+```json
+{
+  "id": "1",
+  "name": "Цветочный Рай",
+  "avatar_url": "https://picsum.photos/seed/shop1/300/200",
+  "city": "Москва",
+  "street": "ул. Тверская, 15",
+  "rating": 4.8,
+  "work_hours": "09:00 - 21:00",
+  "phone": "+7 (495) 123-45-67",
+  "products": [
+    {
+      "id": "1",
+      "name": "Роза красная",
+      "avatar": "https://picsum.photos/seed/rose1/200/200",
+      "price": "150.00",
+      "quantity": 45
+    }
+  ]
+}
+```
+
+Локальный fallback для отладки использует тот же формат JSON в файле `lab_swift/Resources/shops.json`.
+
+### Поля ProductCellViewModel
+
+Для товара используются такие поля, подготовленные из `ItemDTO`:
+
+- `id`
+- `name`
+- `avatarURL`
+- `price`
+- `quantity`
+
+Во view слой DTO напрямую не передаются: данные сначала декодируются в `ShopDTO` и `ItemDTO`, затем маппятся в доменные модели `Shop` и `Item`.
+
+### Как проверить
+
+1. Поднять локальный сервер:
+   - `json-server --watch db.json --port 3000`
+2. Запустить приложение.
+3. Авторизоваться через экран логина.
+4. После успешного входа открывается каталог магазинов, где `ShopCatalogViewModel.loadShops()` вызывает `ShopService.getShops()`.
+5. Для проверки товаров магазина можно вызвать `ShopService.getItems(shopID:)`.
+6. Если сервер недоступен, `NetworkShopService` автоматически переключается на локальный файл `lab_swift/Resources/shops.json`.

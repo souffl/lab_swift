@@ -9,8 +9,8 @@ import UIKit
 
 class ShopViewController: UIViewController
 {
-    let viewModel: ShopViewModel
-    let router: AppRouter
+    var viewModel: ShopViewModel
+    var router: AppRouter
     
     init(viewModel: ShopViewModel, router: AppRouter) {
         self.viewModel = viewModel

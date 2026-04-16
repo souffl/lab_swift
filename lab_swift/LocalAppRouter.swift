@@ -17,8 +17,15 @@ final class LocalAppRouter: AppRouter {
     }
     
     func showShopCatalog() {
-        let featuresVC = FeaturesViewController()
-        navigationController?.setViewControllers([featuresVC], animated: true)
+        let configuration = ShopAPIConfiguration.fromBundle() ?? ShopAPIConfiguration()
+        let client = URLNetworkClient()
+        let service = NetworkShopService(
+            client: client,
+            configuration: configuration
+        )
+        let viewModel = ShopCatalogViewModel(service: service)
+        let vc = CatalogViewController(viewModel: viewModel, router: self)
+        navigationController?.setViewControllers([vc], animated: true)
     }
     
     func showShop(_ shop: Shop) {

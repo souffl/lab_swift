@@ -15,8 +15,8 @@ final class LoginViewController: UIViewController {
         static let stackSpacing: CGFloat = 12
     }
     
-    private let viewModel: LoginViewModel
-    private let router: AppRouter
+    private var viewModel: LoginViewModel
+    private var router: AppRouter
     private let onLoginSucceeded: (() -> Void)?
     
     private lazy var scrollView: UIScrollView = {
