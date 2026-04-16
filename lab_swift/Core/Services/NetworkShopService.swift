@@ -35,16 +35,18 @@ final class NetworkShopService: ShopService {
     private let client: NetworkClient
     private let configuration: ShopAPIConfiguration
     private let endpoint: ShopEndpoint
-    private var cachedShops: [ShopDTO] = []
+    private let localLoader: LocalShopLoader
 
     init(
         client: NetworkClient,
         configuration: ShopAPIConfiguration,
-        endpoint: ShopEndpoint = .shops
+        endpoint: ShopEndpoint = .shops,
+        localLoader: LocalShopLoader = LocalShopLoader()
     ) {
         self.client = client
         self.configuration = configuration
         self.endpoint = endpoint
+        self.localLoader = localLoader
     }
 
     func getShops() async throws -> [Shop] {
@@ -72,37 +74,50 @@ final class NetworkShopService: ShopService {
         }
     }
 
-    func findItem(shopID: String, by itemID: Int) -> Item? {
-        let itemIDString = String(itemID)
+    func findItem(shopID: String, by itemID: Int) async -> Item? {
+        do {
+            let shops = try await fetchShopDTOs()
 
-        return cachedShops
-            .first(where: { $0.id == shopID })?
-            .products
-            .first(where: { $0.id == itemIDString })?
-            .toDomainItem(shopID: shopID)
+            guard let shopDTO = shops.first(where: { $0.id == shopID }) else {
+                return nil
+            }
+
+            return shopDTO.products
+                .first(where: { $0.id == String(itemID) })?
+                .toDomainItem(shopID: shopID)
+        } catch {
+            return nil
+        }
     }
 
-    func hasItem(shopID: String, itemID: Int) -> Bool {
-        findItem(shopID: shopID, by: itemID) != nil
+    func hasItem(shopID: String, itemID: Int) async -> Bool {
+        await findItem(shopID: shopID, by: itemID) != nil
     }
 
-    func issueItem(shopID: String, itemID: Int, quantity: Int) -> IssueResult {
+    func issueItem(shopID: String, itemID: Int, quantity: Int) async -> IssueResult {
         guard quantity > 0 else {
             return .itemNotFound
         }
 
-        guard let item = findItem(shopID: shopID, by: itemID) else {
+        do {
+            let shops = try await fetchShopDTOs()
+
+            guard let shopDTO = shops.first(where: { $0.id == shopID }) else {
+                return .itemNotFound
+            }
+
+            guard let itemDTO = shopDTO.products.first(where: { $0.id == String(itemID) }) else {
+                return .itemNotFound
+            }
+
+            guard itemDTO.quantity >= quantity else {
+                return .outOfStock
+            }
+
+            return .success(item: itemDTO.toDomainItem(shopID: shopID))
+        } catch {
             return .itemNotFound
         }
-
-        guard
-            let shopDTO = cachedShops.first(where: { $0.id == shopID }),
-            let itemDTO = shopDTO.products.first(where: { $0.id == String(itemID) })
-        else {
-            return .itemNotFound
-        }
-
-        return itemDTO.quantity >= quantity ? .success(item: item) : .outOfStock
     }
 
     private func fetchShopDTOs() async throws -> [ShopDTO] {
@@ -110,8 +125,13 @@ final class NetworkShopService: ShopService {
             throw ShopServiceError.invalidURL
         }
 
-        let shops: [ShopDTO] = try await client.get(url)
-        cachedShops = shops
+        let shops: [ShopDTO]
+
+        do {
+            shops = try await client.get(url)
+        } catch {
+            shops = try localLoader.loadShops()
+        }
         return shops
     }
 }
