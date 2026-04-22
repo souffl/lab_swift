@@ -2,7 +2,7 @@
   {
     "id": "1",
     "name": "Цветочный Рай",
-    "avatar_url": "https://picsum.photos/seed/shop1/300/200",
+    "avatar_url": "https://placedog.net/400/600?random",
     "city": "Москва",
     "street": "ул. Тверская, 15",
     "rating": 4.8,
@@ -35,7 +35,7 @@
   {
     "id": "2",
     "name": "БукетМейкер",
-    "avatar_url": "https://picsum.photos/seed/shop2/300/200",
+    "avatar_url": "https://placedog.net/400/600?random",
     "city": "Санкт-Петербург",
     "street": "Невский проспект, 28",
     "rating": 4.5,
@@ -68,7 +68,7 @@
   {
     "id": "3",
     "name": "Flower Studio",
-    "avatar_url": "https://picsum.photos/seed/shop3/300/200",
+    "avatar_url": "https://placedog.net/400/600?random",
     "city": "Екатеринбург",
     "street": "ул. Ленина, 42",
     "rating": 4.9,

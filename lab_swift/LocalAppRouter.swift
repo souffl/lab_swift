@@ -29,7 +29,7 @@ final class LocalAppRouter: AppRouter {
     }
     
     func showShop(_ shop: Shop) {
-        let vc = PlaceholderViewController(text: "Shop: \(shop.name)")
+        let vc = ShopDetailsViewController(shop: shop)
         navigationController?.pushViewController(vc, animated: true)
     }
     

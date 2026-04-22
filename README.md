@@ -96,7 +96,7 @@
 | **Client** | Пользователь: id, login, password (для ответа/хранилища; пароль не отдаётся во View). |
 | **ClientContext** | Текущий контекст сессии: session (SessionState), cart ([Item]). |
 | **SessionState** | enum: anonymous \| authenticated(clientID: Int). |
-| **Shop** | Магазин: id, name, location. |
+| **Shop** | Магазин: id, name, location, imageURL, workHours. |
 | **Item** | Товар: id, shopID, cost (Decimal), name. |
 
 Дополнительные типы в контрактах сервисов:
@@ -140,26 +140,48 @@
 ```
 lab_swift/
 ├── Core/
-│   ├── Models/          # Доменные модели и DTO
+│   ├── DTO/             # Сетевые DTO
+│   │   ├── ItemDTO.swift
+│   │   └── ShopDTO.swift
+│   ├── Models/          # Доменные модели
 │   │   ├── Client.swift
 │   │   ├── ClientContext.swift
 │   │   ├── Item.swift
 │   │   └── Shop.swift
-│   └── Services/        # Протоколы сервисов (контракты Domain ↔ Data)
+│   ├── NetworkClients/  # HTTP-клиент
+│   │   ├── NetworkClient.swift
+│   │   └── URLNetworkClient.swift
+│   └── Services/        # Контракты и реализации сервисов
 │       ├── ContextService.swift
+│       ├── ImageLoader.swift
 │       ├── LoginService.swift
+│       ├── LocalContextService.swift
+│       ├── LocalLoginService.swift
+│       ├── LocalShopLoader.swift
+│       ├── NetworkShopService.swift
 │       ├── PaymentService.swift
+│       ├── ShopAPIConfiguration.swift
+│       ├── ShopEndpoint.swift
 │       └── ShopService.swift
 ├── ViewModels/          # Presentation-слой: контракт View ↔ ViewModel
+│   ├── CartViewModel.swift
 │   ├── LoginViewModel.swift
+│   ├── ShopCellViewModel.swift
 │   ├── ShopCatalogViewModel.swift
-│   ├── ShopViewModel.swift
-│   └── CartViewModel.swift
-├── ViewControllers/     # View (экран за экраном) — дописать
-├── Router/              # Навигация — дописать
+│   └── ShopViewModel.swift
+├── AppRouter.swift
 ├── AppDelegate.swift
+├── CartViewController.swift
+├── CatalogViewController.swift
+├── FeaturesViewController.swift
+├── LocalAppRouter.swift
+├── LoginViewController.swift
 ├── SceneDelegate.swift
-└── README.md
+├── ShopDetailsViewController.swift
+├── ShopCollectionViewCell.swift
+├── ShopViewController.swift
+├── ShopsListManager.swift
+└── ViewController.swift
 ```
 
 ---
@@ -223,3 +245,41 @@ API возвращает объект с ключом `shops` в `db.json`, а e
 4. После успешного входа открывается каталог магазинов, где `ShopCatalogViewModel.loadShops()` вызывает `ShopService.getShops()`.
 5. Для проверки товаров магазина можно вызвать `ShopService.getItems(shopID:)`.
 6. Если сервер недоступен, `NetworkShopService` автоматически переключается на локальный файл `lab_swift/Resources/shops.json`.
+
+---
+
+## Лабораторная 5
+
+Для экрана списка используется `UICollectionView`.
+
+
+После авторизации открывается экран списка магазинов.
+
+Ячейка строится не от DTO, а от отдельной presentation-модели `ShopCellViewModel` и показывает:
+
+- название магазина;
+- картинку по `imageURL`;
+- статус `Открыто` / `Закрыто`.
+
+Для картинок используется отдельный загрузчик на `URLSession` с `URLCache`. При переиспользовании ячейки загрузка отменяется в `prepareForReuse`, а изображение сбрасывается на плейсхолдер.
+
+### Как открыть экран списка
+
+1. Запустить `json-server --watch db.json --port 3000` при необходимости.
+2. Запустить приложение.
+3. Если сессии ещё нет, ввести логин и пароль на экране входа.
+4. После успешной авторизации откроется экран `Магазины`.
+
+Если пользователь уже был авторизован ранее, экран списка откроется сразу при старте приложения.
+
+### Как увидеть состояния экрана
+
+- `loading`: открыть экран списка после входа, пока выполняется `loadShops()`.
+- `content`: появляется после успешной загрузки магазинов.
+- `empty`: ввести в поиск строку, по которой нет совпадений.
+- `error`: временно указать недоступный `SHOP_API_BASE_URL` в `Info.plist` и одновременно сделать недоступным локальный fallback `lab_swift/Resources/shops.json`, чтобы загрузка не смогла завершиться ни из сети, ни из локального файла.
+
+### Фильтрация
+
+На экране есть поиск по названию магазина. Фильтрация выполняется на уровне `ShopCatalogViewModel` по уже загруженным данным и не делает новый сетевой запрос.
+
