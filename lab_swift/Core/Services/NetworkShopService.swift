@@ -135,10 +135,12 @@ final class NetworkShopService: ShopService {
         return shops
     }
     private func toDomainShop(shopDto: ShopDTO) -> Shop? {
-        return Shop(
+        Shop(
             id: shopDto.id,
             name: shopDto.name,
-            location: "\(shopDto.city), \(shopDto.street)"
+            location: "\(shopDto.city), \(shopDto.street)",
+            imageURL: shopDto.avatarURL,
+            workHours: shopDto.workHours
         )
     }
     
