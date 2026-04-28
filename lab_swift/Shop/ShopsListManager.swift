@@ -62,14 +62,21 @@ extension ShopsListManager: UICollectionViewDelegate {
 }
 
 extension ShopsListManager: UICollectionViewDelegateFlowLayout {
+    private enum Constants {
+        static let sectionHorizontalInset: CGFloat = DSSpacing.m
+        static let sectionTopInset: CGFloat = DSSpacing.s + DSSpacing.xs
+        static let sectionBottomInset: CGFloat = DSSpacing.m
+        static let lineSpacing: CGFloat = DSSpacing.s + DSSpacing.xs
+        static let itemHeight: CGFloat = 92
+    }
+
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        let horizontalInset: CGFloat = 16
-        let availableWidth = collectionView.bounds.width - horizontalInset * 2
-        return CGSize(width: availableWidth, height: 92)
+        let availableWidth = collectionView.bounds.width - Constants.sectionHorizontalInset * 2
+        return CGSize(width: availableWidth, height: Constants.itemHeight)
     }
 
     func collectionView(
@@ -77,7 +84,12 @@ extension ShopsListManager: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         insetForSectionAt section: Int
     ) -> UIEdgeInsets {
-        UIEdgeInsets(top: 12, left: 16, bottom: 16, right: 16)
+        UIEdgeInsets(
+            top: Constants.sectionTopInset,
+            left: Constants.sectionHorizontalInset,
+            bottom: Constants.sectionBottomInset,
+            right: Constants.sectionHorizontalInset
+        )
     }
 
     func collectionView(
@@ -85,6 +97,6 @@ extension ShopsListManager: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         minimumLineSpacingForSectionAt section: Int
     ) -> CGFloat {
-        12
+        Constants.lineSpacing
     }
 }

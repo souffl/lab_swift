@@ -5,7 +5,7 @@ final class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = DS.palette.background
         
         rootNavigationController = UINavigationController()
         rootNavigationController.navigationBar.prefersLargeTitles = false
