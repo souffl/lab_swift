@@ -329,21 +329,20 @@ lab_swift/DesignSystem/
 
 - `DSButton`:
   - стили `primary` / `secondary`
-  - disabled state
-  - loading state (`setLoading`)
+  - публичный API: `configure(State)` (`idle` / `loading`)
 - `DSTextField`:
   - заголовок, placeholder, ошибка
   - disabled/secure
-  - конфигурация через `Model`
+  - публичный API: `configure(State)` — `content(Field)` (без ошибки в модели, при вызове ошибка сбрасывается), `withError(String)`
 - `DSLoadingView`:
   - индикатор + текст
-  - конфигурация через `Model`
+  - публичный API: `configure(State)` (`loading(message:)`)
 - `DSErrorView`:
   - иконка + текст + retry-кнопка
-  - конфигурация через `Model`
+  - публичный API: `configure(State)` (`hidden` / `visible(Content)`; retry в `Content.onRetry`)
 - `DSEmptyView`:
   - иконка + заголовок + описание
-  - конфигурация через `Model`
+  - публичный API: `configure(State)` (`hidden` / `visible(Content)`)
 
 ### Применение на экранах
 
@@ -357,7 +356,7 @@ lab_swift/DesignSystem/
   - переключение темы из navigation bar
 - **ShopCollectionViewCell**:
   - стили через DS-токены
-  - конфиг через `configure(with:)` + VM
+  - конфиг ячейки через `configure(with:)` + VM (не DS-компонент)
   - корректный reuse и обновление темы
 - **ShopDetailsViewController**:
   - типографика, палитра и отступы через DS
@@ -377,10 +376,10 @@ lab_swift/DesignSystem/
 ### Дополнительные задания
 
 - **D1 (темизация)** — выполнено.
-- **D4 (валидируемые поля формы)** — выполнено (`DSTextField` + модель конфигурации + ошибка под полем).
+- **D4 (валидируемые поля формы)** — выполнено (`DSTextField` + `configure(State)` + ошибка под полем).
 - **D5 (DS для списка)** — выполнено (`ShopCollectionViewCell` + `configure(with:)` + reuse).
-- **D2 (стиль иконок/изображений)** — частично выполнено:
-  - размеры (`DSIconSize`) и tint (`iconMuted`) централизованы.
+- **D2 (стиль иконок/изображений)** — :
+  - размеры (`DSIconSize`) и цвета иконок есть (`iconMuted`).
 
 ### Как проверить состояния
 

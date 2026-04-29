@@ -8,6 +8,11 @@ final class DSButton: UIButton {
         case secondary
     }
 
+    enum State {
+        case idle(title: String)
+        case loading
+    }
+
     private enum Constants {
         static let horizontalInsets = NSDirectionalEdgeInsets(
             top: DSSpacing.s + DSSpacing.xs,
@@ -19,7 +24,7 @@ final class DSButton: UIButton {
 
     private let style: Style
     private var storedTitle: String?
-    private(set) var isLoading = false
+    private var isLoading = false
 
     init(style: Style = .primary) {
         self.style = style
@@ -45,31 +50,27 @@ final class DSButton: UIButton {
         super.setTitle(title, for: state)
     }
 
-    func configure(title: String) {
-        storedTitle = title
-        super.setTitle(title, for: .normal)
-        applyCurrentStyle()
-    }
-
-    func setLoading(_ loading: Bool) {
-        guard isLoading != loading else { return }
-        isLoading = loading
-
-        if loading {
+    func configure(_ state: State) {
+        switch state {
+        case .idle(let title):
+            if isLoading {
+                hideActivityIndicator()
+                isLoading = false
+            }
+            storedTitle = title
+            super.setTitle(title, for: .normal)
+            isEnabled = true
+        case .loading:
+            guard !isLoading else {
+                applyCurrentStyle()
+                return
+            }
+            isLoading = true
             storedTitle = storedTitle ?? title(for: .normal)
             super.setTitle(nil, for: .normal)
             isEnabled = false
             showActivityIndicator()
-        } else {
-            super.setTitle(storedTitle, for: .normal)
-            hideActivityIndicator()
-            isEnabled = true
         }
-
-        applyCurrentStyle()
-    }
-
-    func refreshAppearance() {
         applyCurrentStyle()
     }
 

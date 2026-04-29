@@ -8,16 +8,22 @@
 import UIKit
 
 final class DSEmptyView: UIView {
-    struct Model {
-        let title: String
-        let message: String?
-        let icon: UIImage?
+    enum State {
+        case hidden
 
-        init(title: String, message: String? = nil, icon: UIImage? = UIImage(systemName: "tray")) {
-            self.title = title
-            self.message = message
-            self.icon = icon
+        struct Content {
+            let title: String
+            let message: String?
+            let icon: UIImage?
+
+            init(title: String, message: String? = nil, icon: UIImage? = UIImage(systemName: "tray")) {
+                self.title = title
+                self.message = message
+                self.icon = icon
+            }
         }
+
+        case visible(Content)
     }
 
     private enum Constants {
@@ -67,22 +73,29 @@ final class DSEmptyView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        refreshAppearance()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with model: Model) {
-        titleLabel.text = model.title
-        messageLabel.text = model.message
-        messageLabel.isHidden = model.message?.isEmpty ?? true
+    func configure(_ state: State) {
+        switch state {
+        case .hidden:
+            break
+        case .visible(let content):
+            titleLabel.text = content.title
+            messageLabel.text = content.message
+            messageLabel.isHidden = content.message?.isEmpty ?? true
 
-        iconView.image = model.icon
-        iconView.isHidden = model.icon == nil
+            iconView.image = content.icon
+            iconView.isHidden = content.icon == nil
+        }
+        refreshAppearance()
     }
 
-    func refreshAppearance() {
+    private func refreshAppearance() {
         backgroundColor = .clear
         iconView.tintColor = DS.palette.iconMuted
         titleLabel.textColor = DS.palette.textPrimary

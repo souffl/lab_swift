@@ -105,6 +105,7 @@ final class ShopCollectionViewCell: UICollectionViewCell {
     }
 
     private func buildUI() {
+        contentView.backgroundColor = DS.palette.surface
         contentView.layer.cornerRadius = Constants.cardCornerRadius
         contentView.layer.masksToBounds = true
 

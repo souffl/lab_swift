@@ -1,20 +1,29 @@
 import UIKit
 
 final class DSErrorView: UIView {
-    struct Model {
-        let message: String
-        let buttonTitle: String
-        let icon: UIImage?
+    enum State {
+        case hidden
 
-        init(
-            message: String,
-            buttonTitle: String = "Повторить",
-            icon: UIImage? = UIImage(systemName: "exclamationmark.triangle")
-        ) {
-            self.message = message
-            self.buttonTitle = buttonTitle
-            self.icon = icon
+        struct Content {
+            let message: String
+            let buttonTitle: String
+            let icon: UIImage?
+            let onRetry: (() -> Void)?
+
+            init(
+                message: String,
+                buttonTitle: String = "Повторить",
+                icon: UIImage? = UIImage(systemName: "exclamationmark.triangle"),
+                onRetry: (() -> Void)? = nil
+            ) {
+                self.message = message
+                self.buttonTitle = buttonTitle
+                self.icon = icon
+                self.onRetry = onRetry
+            }
         }
+
+        case visible(Content)
     }
 
     private enum Constants {
@@ -23,7 +32,7 @@ final class DSErrorView: UIView {
         static let iconSize: CGFloat = DSIconSize.large
     }
 
-    var onRetryTap: (() -> Void)?
+    private var retryAction: (() -> Void)?
 
     private let iconView: UIImageView = {
         let imageView = UIImageView()
@@ -65,18 +74,24 @@ final class DSErrorView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with model: Model) {
-        messageLabel.text = model.message
-        iconView.image = model.icon
-        iconView.isHidden = model.icon == nil
-        retryButton.configure(title: model.buttonTitle)
+    func configure(_ state: State) {
+        switch state {
+        case .hidden:
+            retryAction = nil
+        case .visible(let content):
+            retryAction = content.onRetry
+            messageLabel.text = content.message
+            iconView.image = content.icon
+            iconView.isHidden = content.icon == nil
+            retryButton.configure(.idle(title: content.buttonTitle))
+        }
+        refreshAppearance()
     }
 
-    func refreshAppearance() {
+    private func refreshAppearance() {
         backgroundColor = .clear
         messageLabel.textColor = DS.palette.errorText
         iconView.tintColor = DS.palette.error
-        retryButton.refreshAppearance()
     }
 
     private func setupUI() {
@@ -110,7 +125,7 @@ final class DSErrorView: UIView {
 
     @objc
     private func didTapRetry() {
-        onRetryTap?()
+        retryAction?()
     }
 
     @objc

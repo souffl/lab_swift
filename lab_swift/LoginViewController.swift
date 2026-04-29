@@ -37,11 +37,13 @@ final class LoginViewController: UIViewController {
     private lazy var loginTextField: DSTextField = {
         let view = DSTextField()
         view.configure(
-            with: DSTextField.Model(
-                title: "Логин",
-                placeholder: "Введите логин",
-                isSecure: false,
-                returnKeyType: .next
+            .content(
+                .init(
+                    title: "Логин",
+                    placeholder: "Введите логин",
+                    isSecure: false,
+                    returnKeyType: .next
+                )
             )
         )
         view.textField.delegate = self
@@ -52,11 +54,13 @@ final class LoginViewController: UIViewController {
     private lazy var passwordTextField: DSTextField = {
         let view = DSTextField()
         view.configure(
-            with: DSTextField.Model(
-                title: "Пароль",
-                placeholder: "Введите пароль",
-                isSecure: true,
-                returnKeyType: .done
+            .content(
+                .init(
+                    title: "Пароль",
+                    placeholder: "Введите пароль",
+                    isSecure: true,
+                    returnKeyType: .done
+                )
             )
         )
         view.textField.delegate = self
@@ -66,7 +70,7 @@ final class LoginViewController: UIViewController {
     
     private lazy var loginButton: DSButton = {
         let loginButton = DSButton(style: .primary)
-        loginButton.configure(title: "Войти")
+        loginButton.configure(.idle(title: "Войти"))
         loginButton.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
         return loginButton
     }()
@@ -161,8 +165,8 @@ final class LoginViewController: UIViewController {
                 }
                 self.showError(message)
             } else {
-                self.loginTextField.clearError()
-                self.passwordTextField.clearError()
+                self.loginTextField.configure(.content(self.makeLoginFieldContent()))
+                self.passwordTextField.configure(.content(self.makePasswordFieldContent()))
                 self.errorLabel.text = nil
                 self.errorLabel.isHidden = true
             }
@@ -208,9 +212,6 @@ final class LoginViewController: UIViewController {
     private func applyTheme() {
         view.backgroundColor = DS.palette.background
         errorLabel.textColor = DS.palette.errorText
-        loginTextField.refreshAppearance()
-        passwordTextField.refreshAppearance()
-        loginButton.refreshAppearance()
         navigationItem.rightBarButtonItem?.menu = makeThemeMenu()
     }
     
@@ -232,8 +233,8 @@ final class LoginViewController: UIViewController {
     }
     
     @objc private func textDidChange() {
-        loginTextField.clearError()
-        passwordTextField.clearError()
+        loginTextField.configure(.content(makeLoginFieldContent()))
+        passwordTextField.configure(.content(makePasswordFieldContent()))
         errorLabel.isHidden = true
         errorLabel.text = nil
     }
@@ -257,12 +258,12 @@ final class LoginViewController: UIViewController {
     }
     
     private func setLoading(_ loading: Bool) {
-        loginButton.setLoading(loading)
+        loginButton.configure(loading ? .loading : .idle(title: "Войти"))
     }
     
     private func showError(_ message: String) {
-        loginTextField.clearError()
-        passwordTextField.clearError()
+        loginTextField.configure(.content(makeLoginFieldContent()))
+        passwordTextField.configure(.content(makePasswordFieldContent()))
         errorLabel.text = message
         errorLabel.isHidden = false
     }
@@ -272,8 +273,8 @@ final class LoginViewController: UIViewController {
         let isPasswordEmpty = password.isEmpty
 
         guard isUsernameEmpty || isPasswordEmpty else {
-            loginTextField.clearError()
-            passwordTextField.clearError()
+            loginTextField.configure(.content(makeLoginFieldContent()))
+            passwordTextField.configure(.content(makePasswordFieldContent()))
             errorLabel.isHidden = true
             errorLabel.text = nil
             return true
@@ -296,11 +297,40 @@ final class LoginViewController: UIViewController {
     }
 
     private func applyEmptyCredentialsErrors(isUsernameEmpty: Bool, isPasswordEmpty: Bool) {
-        loginTextField.setError(isUsernameEmpty ? "Введите логин" : nil)
-        passwordTextField.setError(isPasswordEmpty ? "Введите пароль" : nil)
+        if isUsernameEmpty {
+            loginTextField.configure(.withError("Введите логин"))
+        } else {
+            loginTextField.configure(.content(makeLoginFieldContent()))
+        }
+        if isPasswordEmpty {
+            passwordTextField.configure(.withError("Введите пароль"))
+        } else {
+            passwordTextField.configure(.content(makePasswordFieldContent()))
+        }
         errorLabel.text = "Заполните обязательные поля"
         errorLabel.isHidden = false
     }
+
+    private func makeLoginFieldContent() -> DSTextField.State.Field {
+        DSTextField.State.Field(
+            title: "Логин",
+            placeholder: "Введите логин",
+            text: loginTextField.textField.text,
+            isSecure: false,
+            returnKeyType: .next
+        )
+    }
+
+    private func makePasswordFieldContent() -> DSTextField.State.Field {
+        DSTextField.State.Field(
+            title: "Пароль",
+            placeholder: "Введите пароль",
+            text: passwordTextField.textField.text,
+            isSecure: true,
+            returnKeyType: .done
+        )
+    }
+
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard

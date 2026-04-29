@@ -1,12 +1,8 @@
 import UIKit
 
 final class DSLoadingView: UIView {
-    struct Model {
-        let text: String?
-
-        init(text: String? = "Загрузка...") {
-            self.text = text
-        }
+    enum State {
+        case loading(message: String?)
     }
 
     private enum Constants {
@@ -50,12 +46,15 @@ final class DSLoadingView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(with model: Model) {
-        titleLabel.text = model.text
-        titleLabel.isHidden = model.text?.isEmpty ?? true
+    func configure(_ state: State) {
+        switch state {
+        case .loading(let message):
+            titleLabel.text = message
+            titleLabel.isHidden = message?.isEmpty ?? true
+        }
     }
 
-    func refreshAppearance() {
+    private func refreshAppearance() {
         backgroundColor = .clear
         activityIndicator.color = DS.palette.primary
         titleLabel.textColor = DS.palette.textSecondary

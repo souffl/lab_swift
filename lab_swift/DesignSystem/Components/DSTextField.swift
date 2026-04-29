@@ -1,38 +1,40 @@
 import UIKit
 
 final class DSTextField: UIView {
-    struct Model {
-        let title: String?
-        let placeholder: String?
-        let text: String?
-        let error: String?
-        let isSecure: Bool
-        let isEnabled: Bool
-        let returnKeyType: UIReturnKeyType
-        let autocapitalizationType: UITextAutocapitalizationType
-        let autocorrectionType: UITextAutocorrectionType
+    enum State {
+        struct Field {
+            let title: String?
+            let placeholder: String?
+            let text: String?
+            let isSecure: Bool
+            let isEnabled: Bool
+            let returnKeyType: UIReturnKeyType
+            let autocapitalizationType: UITextAutocapitalizationType
+            let autocorrectionType: UITextAutocorrectionType
 
-        init(
-            title: String? = nil,
-            placeholder: String? = nil,
-            text: String? = nil,
-            error: String? = nil,
-            isSecure: Bool = false,
-            isEnabled: Bool = true,
-            returnKeyType: UIReturnKeyType = .default,
-            autocapitalizationType: UITextAutocapitalizationType = .none,
-            autocorrectionType: UITextAutocorrectionType = .no
-        ) {
-            self.title = title
-            self.placeholder = placeholder
-            self.text = text
-            self.error = error
-            self.isSecure = isSecure
-            self.isEnabled = isEnabled
-            self.returnKeyType = returnKeyType
-            self.autocapitalizationType = autocapitalizationType
-            self.autocorrectionType = autocorrectionType
+            init(
+                title: String? = nil,
+                placeholder: String? = nil,
+                text: String? = nil,
+                isSecure: Bool = false,
+                isEnabled: Bool = true,
+                returnKeyType: UIReturnKeyType = .default,
+                autocapitalizationType: UITextAutocapitalizationType = .none,
+                autocorrectionType: UITextAutocorrectionType = .no
+            ) {
+                self.title = title
+                self.placeholder = placeholder
+                self.text = text
+                self.isSecure = isSecure
+                self.isEnabled = isEnabled
+                self.returnKeyType = returnKeyType
+                self.autocapitalizationType = autocapitalizationType
+                self.autocorrectionType = autocorrectionType
+            }
         }
+
+        case content(Field)
+        case withError(String)
     }
 
     private enum Constants {
@@ -73,6 +75,9 @@ final class DSTextField: UIView {
         return stack
     }()
 
+
+    private var lastContent: State.Field?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -87,7 +92,37 @@ final class DSTextField: UIView {
         textField.text
     }
 
-    func configure(with model: Model) {
+    func configure(_ state: State) {
+        switch state {
+        case .content(let field):
+            applyFieldContent(field)
+            applyErrorMessage(nil)
+            lastContent = field
+            refreshAppearance()
+
+        case .withError(let message):
+            guard let base = lastContent else { return }
+            let field = Self.fieldMergingCurrentText(from: base, text: textField.text)
+            applyFieldContent(field)
+            applyErrorMessage(message)
+            refreshAppearance()
+        }
+    }
+
+    private static func fieldMergingCurrentText(from base: State.Field, text: String?) -> State.Field {
+        State.Field(
+            title: base.title,
+            placeholder: base.placeholder,
+            text: text,
+            isSecure: base.isSecure,
+            isEnabled: base.isEnabled,
+            returnKeyType: base.returnKeyType,
+            autocapitalizationType: base.autocapitalizationType,
+            autocorrectionType: base.autocorrectionType
+        )
+    }
+
+    private func applyFieldContent(_ model: State.Field) {
         titleLabel.text = model.title
         titleLabel.isHidden = model.title?.isEmpty ?? true
 
@@ -98,21 +133,14 @@ final class DSTextField: UIView {
         textField.returnKeyType = model.returnKeyType
         textField.autocapitalizationType = model.autocapitalizationType
         textField.autocorrectionType = model.autocorrectionType
-
-        setError(model.error)
-        refreshAppearance()
     }
 
-    func setError(_ message: String?) {
+    private func applyErrorMessage(_ message: String?) {
         errorLabel.text = message
         errorLabel.isHidden = message?.isEmpty ?? true
     }
 
-    func clearError() {
-        setError(nil)
-    }
-
-    func refreshAppearance() {
+    private func refreshAppearance() {
         titleLabel.textColor = DS.palette.textSecondary
         errorLabel.textColor = DS.palette.errorText
         textField.textColor = DS.palette.textPrimary

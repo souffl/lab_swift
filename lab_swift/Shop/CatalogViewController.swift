@@ -28,7 +28,7 @@ final class CatalogViewController: UIViewController {
         let view = DSLoadingView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
-        view.configure(with: DSLoadingView.Model(text: "Загружаем магазины..."))
+        view.configure(.loading(message: "Загружаем магазины..."))
         return view
     }()
 
@@ -43,9 +43,7 @@ final class CatalogViewController: UIViewController {
         let view = DSErrorView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
-        view.onRetryTap = { [weak self] in
-            self?.didTapRetry()
-        }
+        view.configure(.hidden)
         return view
     }()
 
@@ -150,9 +148,6 @@ final class CatalogViewController: UIViewController {
 
     private func applyTheme() {
         view.backgroundColor = DS.palette.background
-        loadingView.refreshAppearance()
-        emptyView.refreshAppearance()
-        errorView.refreshAppearance()
         navigationItem.rightBarButtonItem?.menu = makeThemeMenu()
         collectionView.reloadData()
     }
@@ -218,27 +213,32 @@ final class CatalogViewController: UIViewController {
 
     private func showEmpty(text: String?) {
         guard let text else {
+            emptyView.configure(.hidden)
             emptyView.isHidden = true
             return
         }
 
-        emptyView.configure(
-            with: DSEmptyView.Model(
-                title: text,
-                message: nil,
-                icon: UIImage(systemName: "tray")
-            )
-        )
+        emptyView.configure(.visible(.init(title: text)))
         emptyView.isHidden = false
     }
 
     private func showError(message: String?) {
         guard let message else {
+            errorView.configure(.hidden)
             errorView.isHidden = true
             return
         }
 
-        errorView.configure(with: DSErrorView.Model(message: message))
+        errorView.configure(
+            .visible(
+                .init(
+                    message: message,
+                    onRetry: { [weak self] in
+                        self?.didTapRetry()
+                    }
+                )
+            )
+        )
         errorView.isHidden = false
     }
 
