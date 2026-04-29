@@ -2,7 +2,7 @@
   {
     "id": "1",
     "name": "Цветочный рай",
-    "avatar_url": "https://www.rupixel.ru/files/preview/1280x852/21664948409d2j7clctvdlkapflsgosea0x3gagdeprgk8l1aimv6vpyopp9to706oaijmfzp46vesiijmayuecjkqksocryag2aqt221ixicxk.jpg",
+    "avatar_url": "https://www.placekittens.com/200/300",
     "city": "Москва",
     "street": "ул. Тверская, 15",
     "rating": 4.8,
@@ -35,7 +35,7 @@
   {
     "id": "2",
     "name": "БукетМейкер",
-    "avatar_url": "https://www.rupixel.ru/files/preview/1280x876/21678331828svhn4dxnffz4nrag3cdbqaycmsywphmzwwzj3qsm5nsly2opy8tizgy6rdnul3zerxfhvzh2czrmsozkumsdkbwg9v3ajr8pcqfw.jpg",
+    "avatar_url": "https://www.placekittens.com/200/300",
     "city": "Санкт-Петербург",
     "street": "Невский проспект, 28",
     "rating": 4.5,
@@ -68,7 +68,7 @@
   {
     "id": "3",
     "name": "Flower Studio",
-    "avatar_url": "https://www.rupixel.ru/files/preview/1280x1707/13631758652585e96jkjlkqql9asi8fhfz9sf7qn8ux5acbzvefrnbggwvx6j1jdnx1o9phm3kukw9a0pcbwn8rns0jbstzywfohyf6hn6l6zsu8xf.jpeg",
+    "avatar_url": "https://www.placekittens.com/200/300",
     "city": "Екатеринбург",
     "street": "ул. Ленина, 42",
     "rating": 4.9,

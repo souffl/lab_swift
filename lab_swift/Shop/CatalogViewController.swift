@@ -24,53 +24,27 @@ final class CatalogViewController: UIViewController {
 
     private lazy var listManager = ShopsListManager(collectionView: collectionView, imageLoader: imageLoader)
 
-    private lazy var activityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.hidesWhenStopped = true
-        return indicator
+    private lazy var loadingView: DSLoadingView = {
+        let view = DSLoadingView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        view.configure(.loading(message: "Загружаем магазины..."))
+        return view
     }()
 
-    private lazy var emptyLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        return label
+    private lazy var emptyView: DSEmptyView = {
+        let view = DSEmptyView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
     }()
 
-    private lazy var errorLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.textColor = .label
-        return label
-    }()
-
-    private lazy var retryButton: UIButton = {
-        var configuration = UIButton.Configuration.filled()
-        configuration.title = "Повторить"
-
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.configuration = configuration
-        button.addTarget(self, action: #selector(didTapRetry), for: .touchUpInside)
-        return button
-    }()
-
-    private lazy var errorStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [errorLabel, retryButton])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 12
-        stackView.alignment = .center
-        stackView.isHidden = true
-        return stackView
+    private lazy var errorView: DSErrorView = {
+        let view = DSErrorView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        view.configure(.hidden)
+        return view
     }()
 
     private lazy var searchController: UISearchController = {
@@ -101,6 +75,7 @@ final class CatalogViewController: UIViewController {
         super.viewDidLoad()
         buildUI()
         bindViewModel()
+        configureNavigation()
 
         Task {
             await viewModel.loadShops()
@@ -108,16 +83,15 @@ final class CatalogViewController: UIViewController {
     }
 
     private func buildUI() {
-        view.backgroundColor = .systemBackground
-        navigationItem.title = "Магазины"
+        view.backgroundColor = DS.palette.background
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
 
         view.addSubview(collectionView)
-        view.addSubview(activityIndicator)
-        view.addSubview(emptyLabel)
-        view.addSubview(errorStackView)
+        view.addSubview(loadingView)
+        view.addSubview(emptyView)
+        view.addSubview(errorView)
 
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -125,19 +99,57 @@ final class CatalogViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            loadingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            loadingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            loadingView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            loadingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            emptyLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 24),
-            emptyLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -24),
+            emptyView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            emptyView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            errorStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            errorStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            errorStackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 24),
-            errorStackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -24)
+            errorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            errorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            errorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            errorView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+
+    private func configureNavigation() {
+        navigationItem.title = "Магазины"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Тема",
+            image: nil,
+            primaryAction: nil,
+            menu: makeThemeMenu()
+        )
+    }
+
+    private func makeThemeMenu() -> UIMenu {
+        let warmAction = UIAction(
+            title: "Warm",
+            state: DS.themeKind == .warm ? .on : .off
+        ) { [weak self] _ in
+            DS.applyTheme(.warm, window: self?.view.window)
+            self?.applyTheme()
+        }
+
+        let darkAction = UIAction(
+            title: "Dark",
+            state: DS.themeKind == .dark ? .on : .off
+        ) { [weak self] _ in
+            DS.applyTheme(.dark, window: self?.view.window)
+            self?.applyTheme()
+        }
+
+        return UIMenu(title: "Палитра", options: .displayInline, children: [warmAction, darkAction])
+    }
+
+    private func applyTheme() {
+        view.backgroundColor = DS.palette.background
+        navigationItem.rightBarButtonItem?.menu = makeThemeMenu()
+        collectionView.reloadData()
     }
 
     private func bindViewModel() {
@@ -192,11 +204,7 @@ final class CatalogViewController: UIViewController {
     }
 
     private func setLoading(_ isLoading: Bool) {
-        if isLoading {
-            activityIndicator.startAnimating()
-        } else {
-            activityIndicator.stopAnimating()
-        }
+        loadingView.isHidden = !isLoading
     }
 
     private func showCollection(_ isVisible: Bool) {
@@ -204,13 +212,34 @@ final class CatalogViewController: UIViewController {
     }
 
     private func showEmpty(text: String?) {
-        emptyLabel.text = text
-        emptyLabel.isHidden = text == nil
+        guard let text else {
+            emptyView.configure(.hidden)
+            emptyView.isHidden = true
+            return
+        }
+
+        emptyView.configure(.visible(.init(title: text)))
+        emptyView.isHidden = false
     }
 
     private func showError(message: String?) {
-        errorLabel.text = message
-        errorStackView.isHidden = message == nil
+        guard let message else {
+            errorView.configure(.hidden)
+            errorView.isHidden = true
+            return
+        }
+
+        errorView.configure(
+            .visible(
+                .init(
+                    message: message,
+                    onRetry: { [weak self] in
+                        self?.didTapRetry()
+                    }
+                )
+            )
+        )
+        errorView.isHidden = false
     }
 
     @objc private func didTapRetry() {

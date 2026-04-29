@@ -8,11 +8,10 @@ import UIKit
 
 final class LoginViewController: UIViewController {
     private enum Constants {
-        static let horizontalPadding: CGFloat = 16
-        static let verticalPadding: CGFloat = 24
-        static let fieldHeight: CGFloat = 44
-        static let buttonHeight: CGFloat = 50
-        static let stackSpacing: CGFloat = 12
+        static let horizontalPadding: CGFloat = DSSpacing.m
+        static let verticalPadding: CGFloat = DSSpacing.l
+        static let buttonHeight: CGFloat = DSSpacing.controlHeight
+        static let stackSpacing: CGFloat = DSSpacing.s + DSSpacing.xs
     }
     
     private var viewModel: LoginViewModel
@@ -22,6 +21,7 @@ final class LoginViewController: UIViewController {
     private lazy var scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.keyboardDismissMode = .interactive
+        sv.backgroundColor = .clear
         sv.translatesAutoresizingMaskIntoConstraints = false
         return sv
     }()
@@ -34,49 +34,55 @@ final class LoginViewController: UIViewController {
         return st
     }()
     
-    private lazy var loginTextField: UITextField = {
-        makeTextField(
-            placeholder: "Логин",
-            isSecure: false,
-            returnKey: .next
+    private lazy var loginTextField: DSTextField = {
+        let view = DSTextField()
+        view.configure(
+            .content(
+                .init(
+                    title: "Логин",
+                    placeholder: "Введите логин",
+                    isSecure: false,
+                    returnKeyType: .next
+                )
+            )
         )
+        view.textField.delegate = self
+        view.textField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        return view
     }()
     
-    private lazy var passwordTextField: UITextField = {
-        makeTextField(
-            placeholder: "Пароль",
-            isSecure: true,
-            returnKey: .done
+    private lazy var passwordTextField: DSTextField = {
+        let view = DSTextField()
+        view.configure(
+            .content(
+                .init(
+                    title: "Пароль",
+                    placeholder: "Введите пароль",
+                    isSecure: true,
+                    returnKeyType: .done
+                )
+            )
         )
+        view.textField.delegate = self
+        view.textField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
+        return view
     }()
     
-    private lazy var loginButton: UIButton = {
-        var config = UIButton.Configuration.filled()
-        config.title = "Войти"
-        config.baseBackgroundColor = .systemBlue
-        config.baseForegroundColor = .white
-        
-        let button = UIButton(type: .system)
-        button.configuration = config
-        button.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
+    private lazy var loginButton: DSButton = {
+        let loginButton = DSButton(style: .primary)
+        loginButton.configure(.idle(title: "Войти"))
+        loginButton.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
+        return loginButton
     }()
+   
     
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13)
-        label.textColor = .systemRed
+        label.font = DSTypography.caption()
+        label.textColor = DS.palette.errorText
         label.numberOfLines = 0
         label.isHidden = true
         return label
-    }()
-    
-    private lazy var activityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.hidesWhenStopped = true
-        return indicator
     }()
     
     private weak var activeTextField: UITextField?
@@ -95,14 +101,13 @@ final class LoginViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        navigationItem.title = "Вход"
+        configureNavigation()
         
         buildUI()
         bindViewModel()
         setupKeyboardHandling()
         
-        loginTextField.becomeFirstResponder()
+        loginTextField.textField.becomeFirstResponder()
     }
     
     deinit {
@@ -110,6 +115,7 @@ final class LoginViewController: UIViewController {
     }
     
     private func buildUI() {
+        view.backgroundColor = DS.palette.background
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
         
@@ -123,25 +129,15 @@ final class LoginViewController: UIViewController {
         ])
         
         buttonContainer.addSubview(loginButton)
-        buttonContainer.addSubview(activityIndicator)
         NSLayoutConstraint.activate([
             loginButton.leadingAnchor.constraint(equalTo: buttonContainer.leadingAnchor),
             loginButton.trailingAnchor.constraint(equalTo: buttonContainer.trailingAnchor),
             loginButton.topAnchor.constraint(equalTo: buttonContainer.topAnchor),
-            loginButton.bottomAnchor.constraint(equalTo: buttonContainer.bottomAnchor),
-            
-            activityIndicator.centerXAnchor.constraint(equalTo: buttonContainer.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: buttonContainer.centerYAnchor)
+            loginButton.bottomAnchor.constraint(equalTo: buttonContainer.bottomAnchor)
         ])
         
         stackView.addArrangedSubview(buttonContainer)
         stackView.addArrangedSubview(errorLabel)
-        
-        [loginTextField, passwordTextField].forEach { tf in
-            NSLayoutConstraint.activate([
-                tf.heightAnchor.constraint(equalToConstant: Constants.fieldHeight)
-            ])
-        }
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -157,28 +153,20 @@ final class LoginViewController: UIViewController {
         ])
     }
     
-    private func makeTextField(placeholder: String, isSecure: Bool, returnKey: UIReturnKeyType) -> UITextField {
-        let tf = UITextField()
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder = placeholder
-        tf.borderStyle = .roundedRect
-        tf.autocapitalizationType = .none
-        tf.autocorrectionType = .no
-        tf.returnKeyType = returnKey
-        tf.isSecureTextEntry = isSecure
-        tf.delegate = self
-        tf.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
-        return tf
-    }
-    
     private func bindViewModel() {
         viewModel.onLoginFailed = { [weak self] message in
             guard let self else { return }
             
             if let message {
                 self.setLoading(false)
+                if message == "Пустая строка" {
+                    self.applyEmptyCredentialsErrors()
+                    return
+                }
                 self.showError(message)
             } else {
+                self.loginTextField.configure(.content(self.makeLoginFieldContent()))
+                self.passwordTextField.configure(.content(self.makePasswordFieldContent()))
                 self.errorLabel.text = nil
                 self.errorLabel.isHidden = true
             }
@@ -189,6 +177,42 @@ final class LoginViewController: UIViewController {
             self?.router.showShopCatalog()
             self?.onLoginSucceeded?()
         }
+    }
+
+    private func configureNavigation() {
+        navigationItem.title = "Вход"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Тема",
+            image: nil,
+            primaryAction: nil,
+            menu: makeThemeMenu()
+        )
+    }
+
+    private func makeThemeMenu() -> UIMenu {
+        let warmAction = UIAction(
+            title: "Warm",
+            state: DS.themeKind == .warm ? .on : .off
+        ) { [weak self] _ in
+            DS.applyTheme(.warm, window: self?.view.window)
+            self?.applyTheme()
+        }
+
+        let darkAction = UIAction(
+            title: "Dark",
+            state: DS.themeKind == .dark ? .on : .off
+        ) { [weak self] _ in
+            DS.applyTheme(.dark, window: self?.view.window)
+            self?.applyTheme()
+        }
+
+        return UIMenu(title: "Палитра", options: .displayInline, children: [warmAction, darkAction])
+    }
+
+    private func applyTheme() {
+        view.backgroundColor = DS.palette.background
+        errorLabel.textColor = DS.palette.errorText
+        navigationItem.rightBarButtonItem?.menu = makeThemeMenu()
     }
     
     private func setupKeyboardHandling() {
@@ -209,6 +233,8 @@ final class LoginViewController: UIViewController {
     }
     
     @objc private func textDidChange() {
+        loginTextField.configure(.content(makeLoginFieldContent()))
+        passwordTextField.configure(.content(makePasswordFieldContent()))
         errorLabel.isHidden = true
         errorLabel.text = nil
     }
@@ -222,24 +248,89 @@ final class LoginViewController: UIViewController {
         
         let username = loginTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let password = passwordTextField.text ?? ""
+
+        guard validateCredentials(username: username, password: password) else {
+            return
+        }
         
         setLoading(true)
         viewModel.login(username: username, password: password)
     }
     
     private func setLoading(_ loading: Bool) {
-        loginButton.isEnabled = !loading
-        if loading {
-            activityIndicator.startAnimating()
-        } else {
-            activityIndicator.stopAnimating()
-        }
+        loginButton.configure(loading ? .loading : .idle(title: "Войти"))
     }
     
     private func showError(_ message: String) {
+        loginTextField.configure(.content(makeLoginFieldContent()))
+        passwordTextField.configure(.content(makePasswordFieldContent()))
         errorLabel.text = message
         errorLabel.isHidden = false
     }
+
+    private func validateCredentials(username: String, password: String) -> Bool {
+        let isUsernameEmpty = username.isEmpty
+        let isPasswordEmpty = password.isEmpty
+
+        guard isUsernameEmpty || isPasswordEmpty else {
+            loginTextField.configure(.content(makeLoginFieldContent()))
+            passwordTextField.configure(.content(makePasswordFieldContent()))
+            errorLabel.isHidden = true
+            errorLabel.text = nil
+            return true
+        }
+
+        applyEmptyCredentialsErrors(
+            isUsernameEmpty: isUsernameEmpty,
+            isPasswordEmpty: isPasswordEmpty
+        )
+        return false
+    }
+
+    private func applyEmptyCredentialsErrors() {
+        let username = loginTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let password = passwordTextField.text ?? ""
+        applyEmptyCredentialsErrors(
+            isUsernameEmpty: username.isEmpty,
+            isPasswordEmpty: password.isEmpty
+        )
+    }
+
+    private func applyEmptyCredentialsErrors(isUsernameEmpty: Bool, isPasswordEmpty: Bool) {
+        if isUsernameEmpty {
+            loginTextField.configure(.withError("Введите логин"))
+        } else {
+            loginTextField.configure(.content(makeLoginFieldContent()))
+        }
+        if isPasswordEmpty {
+            passwordTextField.configure(.withError("Введите пароль"))
+        } else {
+            passwordTextField.configure(.content(makePasswordFieldContent()))
+        }
+        errorLabel.text = "Заполните обязательные поля"
+        errorLabel.isHidden = false
+    }
+
+    private func makeLoginFieldContent() -> DSTextField.State.Field {
+        DSTextField.State.Field(
+            title: "Логин",
+            placeholder: "Введите логин",
+            text: loginTextField.textField.text,
+            isSecure: false,
+            returnKeyType: .next
+        )
+    }
+
+    private func makePasswordFieldContent() -> DSTextField.State.Field {
+        DSTextField.State.Field(
+            title: "Пароль",
+            placeholder: "Введите пароль",
+            text: passwordTextField.textField.text,
+            isSecure: true,
+            returnKeyType: .done
+        )
+    }
+
     
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard
@@ -288,12 +379,12 @@ extension LoginViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField === loginTextField {
-            passwordTextField.becomeFirstResponder()
+        if textField === loginTextField.textField {
+            passwordTextField.textField.becomeFirstResponder()
             return false
         }
         
-        if textField === passwordTextField {
+        if textField === passwordTextField.textField {
             attemptLogin()
             return false
         }

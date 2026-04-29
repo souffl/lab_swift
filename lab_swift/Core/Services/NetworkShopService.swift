@@ -10,6 +10,8 @@ import Foundation
 enum ShopServiceError: Error {
     case invalidURL
     case network(NetworkError)
+    /// Сеть недоступна и локальный каталог не загрузился.
+    case catalogUnavailable
     case unknown(Error)
 
     var messageForUI: String {
@@ -25,8 +27,10 @@ enum ShopServiceError: Error {
             case .decoding:
                 return "Не удалось разобрать данные"
             }
-        case .unknown:
-            return "Неизвестная ошибка"
+        case .catalogUnavailable:
+            return "Не удалось загрузить магазины"
+        case .unknown(let error):
+            return error.localizedDescription
         }
     }
 }
@@ -53,6 +57,8 @@ final class NetworkShopService: ShopService {
         do {
             let shops = try await fetchShopDTOs()
             return shops.compactMap { toDomainShop(shopDto:$0) }
+        } catch let error as ShopServiceError {
+            throw error
         } catch let error as NetworkError {
             throw ShopServiceError.network(error)
         } catch {
@@ -125,14 +131,15 @@ final class NetworkShopService: ShopService {
             throw ShopServiceError.invalidURL
         }
 
-        let shops: [ShopDTO]
-
         do {
-            shops = try await client.get(url)
+            return try await client.get(url)
         } catch {
-            shops = try localLoader.loadShops()
+            do {
+                return try localLoader.loadShops()
+            } catch {
+                throw ShopServiceError.catalogUnavailable
+            }
         }
-        return shops
     }
     private func toDomainShop(shopDto: ShopDTO) -> Shop? {
         Shop(

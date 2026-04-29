@@ -22,6 +22,7 @@ enum ShopCellViewModelMapper {
             imageURL: shop.imageURL,
             isOpen: isOpen,
             statusText: isOpen ? "Открыто" : "Закрыто"
+            
         )
     }
 }

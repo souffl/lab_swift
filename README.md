@@ -283,3 +283,114 @@ API возвращает объект с ключом `shops` в `db.json`, а e
 
 На экране есть поиск по названию магазина. Фильтрация выполняется на уровне `ShopCatalogViewModel` по уже загруженным данным и не делает новый сетевой запрос.
 
+---
+
+## Лабораторная 6 — Дизайн-система
+
+В проект добавлена мини дизайн-система и применена на экранах авторизации, каталога и деталей магазина.
+
+### Где лежит дизайн-система
+
+```
+lab_swift/DesignSystem/
+├── Theme/
+│   ├── DS.swift
+│   ├── DSPalette.swift
+│   ├── DSTypography.swift
+│   ├── DSSpacing.swift
+│   └── DSIconSize.swift
+└── Components/
+    ├── DSButton.swift
+    ├── DSTextField.swift
+    ├── DSLoadingView.swift
+    ├── DSError.swift
+    └── DSEmptyView.swift
+```
+
+### Токены
+
+- **Colors / Palette** (`DSPalette`):
+  - `background`, `surface`, `primary`, `onPrimary`, `secondary`
+  - `textPrimary`, `textSecondary`
+  - `error`, `errorText`
+  - `border`, `separator`
+  - `statusPositive`, `statusNegative`
+  - `iconMuted`
+- **Typography** (`DSTypography`):
+  - `largeTitle`, `title`, `headline`, `body`, `bodyMedium`, `caption`, `captionMedium`, `button`, `fieldTitle`
+- **Spacing / Radius** (`DSSpacing`):
+  - `xs/s/m/l/xl`
+  - `cornerRadiusSmall/Medium/Large`
+  - `controlHeight`
+- **Icon sizes** (`DSIconSize`):
+  - `small`, `medium`, `large`
+
+### Реализованные компоненты
+
+- `DSButton`:
+  - стили `primary` / `secondary`
+  - публичный API: `configure(State)` (`idle` / `loading`)
+- `DSTextField`:
+  - заголовок, placeholder, ошибка
+  - disabled/secure
+  - публичный API: `configure(State)` — `content(Field)` (без ошибки в модели, при вызове ошибка сбрасывается), `withError(String)`
+- `DSLoadingView`:
+  - индикатор + текст
+  - публичный API: `configure(State)` (`loading(message:)`)
+- `DSErrorView`:
+  - иконка + текст + retry-кнопка
+  - публичный API: `configure(State)` (`hidden` / `visible(Content)`; retry в `Content.onRetry`)
+- `DSEmptyView`:
+  - иконка + заголовок + описание
+  - публичный API: `configure(State)` (`hidden` / `visible(Content)`)
+
+### Применение на экранах
+
+- **LoginViewController**:
+  - `DSTextField` (логин/пароль)
+  - `DSButton` (вход, loading)
+  - токены палитры/типографики/отступов
+- **CatalogViewController**:
+  - `DSLoadingView`, `DSErrorView`, `DSEmptyView`
+  - токены палитры
+  - переключение темы из navigation bar
+- **ShopCollectionViewCell**:
+  - стили через DS-токены
+  - конфиг ячейки через `configure(with:)` + VM (не DS-компонент)
+  - корректный reuse и обновление темы
+- **ShopDetailsViewController**:
+  - типографика, палитра и отступы через DS
+  - обновление при смене темы
+
+### Темизация (D1)
+
+- Поддерживаются две темы:
+  - `warm`
+  - `dark`
+- Текущая тема хранится в `UserDefaults` и применяется через `DS.applyTheme(...)`.
+- Переключение темы доступно через кнопку **«Тема»** в navigation bar:
+  - на экране входа
+  - на экране каталога
+  - на экране деталей магазина
+
+### Дополнительные задания
+
+- **D1 (темизация)** — выполнено.
+- **D4 (валидируемые поля формы)** — выполнено (`DSTextField` + `configure(State)` + ошибка под полем).
+- **D5 (DS для списка)** — выполнено (`ShopCollectionViewCell` + `configure(with:)` + reuse).
+- **D2 (стиль иконок/изображений)** — :
+  - размеры (`DSIconSize`) и цвета иконок есть (`iconMuted`).
+
+### Как проверить состояния
+
+1. Запустить приложение.
+2. Авторизоваться (или использовать сохранённую сессию) и открыть каталог.
+3. Проверить состояния каталога:
+   - `loading`: при первоначальной загрузке списка
+   - `content`: после успешной загрузки
+   - `empty`: ввести в поиск строку без совпадений
+   - `error`: сделать недоступными и сеть, и локальный fallback, затем нажать retry
+4. Проверить тему:
+   - нажать **«Тема»** в navigation bar и переключить `warm`/`dark`
+   - убедиться, что цвета экранов и ячеек обновляются.
+

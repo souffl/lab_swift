@@ -67,7 +67,7 @@ private final class PlaceholderViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = DS.palette.background
         navigationItem.title = "Экран"
         
         let label = UILabel()
