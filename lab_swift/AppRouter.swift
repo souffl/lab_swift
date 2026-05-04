@@ -8,6 +8,7 @@
 protocol AppRouter {
     func showShopCatalog()
     func showShop(_ shop: Shop)
+    func showBDUIScreen(config: BDUIScreenConfig)
     func showCart()
     func showLogin(completion: (() -> Void)?)
     func dismissLogin()

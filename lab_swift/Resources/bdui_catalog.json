@@ -1,0 +1,89 @@
+{
+  "type": "stack",
+  "direction": "column",
+  "innerSpace": 12,
+  "alignment": "fill",
+  "style": {
+    "backgroundColor": "background"
+  },
+  "views": [
+    {
+      "type": "list",
+      "direction": "column",
+      "innerSpace": 12,
+      "alignment": "fill",
+      "items": [
+        {
+          "name": "Цветочный рай",
+          "image": "https://www.placekittens.com/200/300",
+          "status": "Открыто"
+        },
+        {
+          "name": "БукетМейкер",
+          "image": "https://www.placekittens.com/200/300",
+          "status": "Закрыто"
+        },
+        {
+          "name": "Flower Studio",
+          "image": "https://www.placekittens.com/200/300",
+          "status": "Закрыто"
+        }
+      ],
+      "template": {
+        "type": "stack",
+        "direction": "row",
+        "innerSpace": 12,
+        "alignment": "center",
+        "style": {
+          "backgroundColor": "surface",
+          "cornerRadius": 16,
+          "padding": 12
+        },
+        "views": [
+          {
+            "type": "icon",
+            "imageUrl": "{{image}}",
+            "size": 72,
+            "style": {
+              "cornerRadius": 12,
+              "backgroundColor": "background"
+            }
+          },
+          {
+            "type": "stack",
+            "direction": "column",
+            "innerSpace": 4,
+            "alignment": "leading",
+            "views": [
+              {
+                "type": "label",
+                "text": {
+                  "value": "{{name}}",
+                  "typography": "headline",
+                  "color": "textPrimary"
+                }
+              },
+              {
+                "type": "label",
+                "text": {
+                  "value": "{{status}}",
+                  "typography": "captionMedium",
+                  "color": "statusNegative"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "spacer",
+      "size": 200
+    },
+    {
+      "type": "textField",
+      "placeholder": "Поиск магазинов",
+      "returnKeyType": "search"
+    }
+  ]
+}

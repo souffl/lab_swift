@@ -10,7 +10,6 @@ import Foundation
 enum ShopServiceError: Error {
     case invalidURL
     case network(NetworkError)
-    /// Сеть недоступна и локальный каталог не загрузился.
     case catalogUnavailable
     case unknown(Error)
 
