@@ -18,5 +18,4 @@ struct Item: Codable, Identifiable, Equatable {
         self.cost = cost
         self.name = name
     }
-    
 }

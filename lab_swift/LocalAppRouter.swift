@@ -23,12 +23,7 @@ final class LocalAppRouter: AppRouter {
     }
     
     func showShopCatalog() {
-        let configuration = ShopAPIConfiguration.fromBundle() ?? ShopAPIConfiguration()
-        let client = URLNetworkClient()
-        let service = NetworkShopService(
-            client: client,
-            configuration: configuration
-        )
+        let service = makeShopService()
         let viewModel = ShopCatalogViewModel(service: service)
         let vc = CatalogViewController(viewModel: viewModel, router: self)
         navigationController?.setViewControllers([vc], animated: true)
@@ -36,15 +31,7 @@ final class LocalAppRouter: AppRouter {
     
     func showShop(_ shop: Shop) {
         let config = bduiPathBuilder.makeConfig(for: shop)
-        let components = makeBDUIComponents(config: config)
-        let vc = ShopDetailsViewController(shop: shop) {
-            BDUIScreenView(
-                viewModel: components.viewModel,
-                mapper: components.mapper,
-                actionHandler: components.actionHandler
-            )
-        }
-        navigationController?.pushViewController(vc, animated: true)
+        showBDUIScreen(config: config)
     }
 
     func showBDUIScreen(config: BDUIScreenConfig) {
@@ -86,6 +73,15 @@ final class LocalAppRouter: AppRouter {
         let actionHandler = RouterBDUIActionHandler(router: self)
         let mapper = BDUIViewMapper(actionHandler: actionHandler)
         return BDUIComponents(viewModel: viewModel, mapper: mapper, actionHandler: actionHandler)
+    }
+
+    private func makeShopService() -> ShopService {
+        let configuration = ShopAPIConfiguration.fromBundle() ?? ShopAPIConfiguration()
+        let client = URLNetworkClient()
+        return NetworkShopService(
+            client: client,
+            configuration: configuration
+        )
     }
 }
 

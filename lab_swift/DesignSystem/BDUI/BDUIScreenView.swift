@@ -54,6 +54,12 @@ final class BDUIScreenView: UIView {
         }
     }
 
+    func reload() {
+        Task {
+            await viewModel.reloadScreen()
+        }
+    }
+
     private func buildLayout() {
         addSubview(scrollView)
         scrollView.addSubview(contentContainer)

@@ -4,6 +4,14 @@
 <dict>
 	<key>SHOP_API_BASE_URL</key>
 	<string>http://localhost:3000</string>
+	<key>BDUI_ECHO_BASE_URL</key>
+	<string>https://alfaitmo.ru</string>
+	<key>BDUI_ECHO_ROUTE_PATH</key>
+	<string>/server/echo</string>
+	<key>BDUI_SHOP_PATH_PREFIX</key>
+	<string>shops</string>
+	<key>BDUI_SHOP_PRODUCTS_PATH_NODE</key>
+	<string>products</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
