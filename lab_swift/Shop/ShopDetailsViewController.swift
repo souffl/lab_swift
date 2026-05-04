@@ -2,13 +2,14 @@ import UIKit
 
 final class ShopDetailsViewController: UIViewController {
     private let shop: Shop
+    private let makeBDUIScreenView: () -> BDUIScreenView
 
     private enum Constants {
         static let horizontalInset: CGFloat = DSSpacing.l
         static let stackSpacing: CGFloat = DSSpacing.s
     }
 
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = DSTypography.title()
@@ -17,7 +18,7 @@ final class ShopDetailsViewController: UIViewController {
         return label
     }()
 
-    private let locationLabel: UILabel = {
+    private lazy var locationLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = DSTypography.body()
@@ -25,12 +26,18 @@ final class ShopDetailsViewController: UIViewController {
         return label
     }()
 
-    private let hoursLabel: UILabel = {
+    private lazy var hoursLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = DSTypography.body()
         label.numberOfLines = 0
         return label
+    }()
+
+    private lazy var detailsContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
 
     private lazy var stackView: UIStackView = {
@@ -41,8 +48,18 @@ final class ShopDetailsViewController: UIViewController {
         return stack
     }()
 
-    init(shop: Shop) {
+    private lazy var bduiScreenView: BDUIScreenView = {
+        let view = makeBDUIScreenView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    init(
+        shop: Shop,
+        makeBDUIScreenView: @escaping () -> BDUIScreenView
+    ) {
         self.shop = shop
+        self.makeBDUIScreenView = makeBDUIScreenView
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -53,9 +70,10 @@ final class ShopDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         buildUI()
-        configureContent()
         configureNavigation()
         refreshAppearance()
+
+        bduiScreenView.start()
     }
 
     deinit {
@@ -63,12 +81,24 @@ final class ShopDetailsViewController: UIViewController {
     }
 
     private func buildUI() {
-        view.addSubview(stackView)
-        
+        view.addSubview(detailsContainer)
+        detailsContainer.addSubview(stackView)
+        view.addSubview(bduiScreenView)
+
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.horizontalInset),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.horizontalInset),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            detailsContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            detailsContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            detailsContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            stackView.topAnchor.constraint(equalTo: detailsContainer.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: detailsContainer.leadingAnchor, constant: Constants.horizontalInset),
+            stackView.trailingAnchor.constraint(equalTo: detailsContainer.trailingAnchor, constant: -Constants.horizontalInset),
+            stackView.bottomAnchor.constraint(equalTo: detailsContainer.bottomAnchor),
+
+            bduiScreenView.topAnchor.constraint(equalTo: detailsContainer.bottomAnchor, constant: DSSpacing.m),
+            bduiScreenView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bduiScreenView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bduiScreenView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
         NotificationCenter.default.addObserver(
@@ -77,12 +107,6 @@ final class ShopDetailsViewController: UIViewController {
             name: .dsThemeDidChange,
             object: nil
         )
-    }
-
-    private func configureContent() {
-        titleLabel.text = "Детали магазина"
-        locationLabel.text = shop.location
-        hoursLabel.text = "Часы работы: \(shop.workHours)"
     }
 
     private func configureNavigation() {
@@ -119,6 +143,7 @@ final class ShopDetailsViewController: UIViewController {
 
     private func refreshAppearance() {
         view.backgroundColor = DS.palette.background
+        detailsContainer.backgroundColor = DS.palette.background
         titleLabel.textColor = DS.palette.textPrimary
         locationLabel.textColor = DS.palette.textSecondary
         hoursLabel.textColor = DS.palette.textSecondary

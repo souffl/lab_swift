@@ -1,0 +1,30 @@
+{
+  "type": "stack",
+  "direction": "column",
+  "innerSpace": 16,
+  "alignment": "fill",
+  "style": {
+    "backgroundColor": "background"
+  },
+  "views": [
+    {
+      "type": "textField",
+      "title": "Логин",
+      "placeholder": "Введите логин",
+      "returnKeyType": "next"
+    },
+    {
+      "type": "textField",
+      "title": "Пароль",
+      "placeholder": "Введите пароль",
+      "isSecure": true,
+      "returnKeyType": "done"
+    },
+    {
+      "type": "button",
+      "buttonStyle": "primary",
+      "text": "Войти",
+      "action": "submit"
+    }
+  ]
+}

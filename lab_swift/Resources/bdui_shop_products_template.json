@@ -1,0 +1,111 @@
+{
+  "type": "stack",
+  "direction": "column",
+  "innerSpace": 12,
+  "alignment": "fill",
+  "style": {
+    "backgroundColor": "background"
+  },
+  "views": [
+    {
+      "type": "label",
+      "text": {
+        "value": "Товары в магазине",
+        "typography": "title",
+        "color": "textPrimary"
+      }
+    },
+    {
+      "type": "label",
+      "text": {
+        "value": "Актуальное наличие",
+        "typography": "captionMedium",
+        "color": "textSecondary"
+      }
+    },
+    {
+      "type": "spacer",
+      "size": 4
+    },
+    {
+      "type": "list",
+      "direction": "column",
+      "innerSpace": 10,
+      "alignment": "fill",
+      "items": [
+        {
+          "name": "Роза красная",
+          "image": "https://picsum.photos/seed/rose1/200/200",
+          "price": "150.00",
+          "status": "В наличии: 45 шт."
+        },
+        {
+          "name": "Тюльпаны микс (3 шт.)",
+          "image": "https://picsum.photos/seed/tulip1/200/200",
+          "price": "299.00",
+          "status": "В наличии: 23 шт."
+        },
+        {
+          "name": "Пионы белые",
+          "image": "https://picsum.photos/seed/peony1/200/200",
+          "price": "450.00",
+          "status": "В наличии: 12 шт."
+        }
+      ],
+      "template": {
+        "type": "stack",
+        "direction": "row",
+        "innerSpace": 12,
+        "alignment": "center",
+        "style": {
+          "backgroundColor": "surface",
+          "cornerRadius": 14,
+          "padding": 12
+        },
+        "views": [
+          {
+            "type": "icon",
+            "imageUrl": "{{image}}",
+            "size": 64,
+            "style": {
+              "cornerRadius": 10,
+              "backgroundColor": "background"
+            }
+          },
+          {
+            "type": "stack",
+            "direction": "column",
+            "innerSpace": 4,
+            "alignment": "leading",
+            "views": [
+              {
+                "type": "label",
+                "text": {
+                  "value": "{{name}}",
+                  "typography": "headline",
+                  "color": "textPrimary"
+                }
+              },
+              {
+                "type": "label",
+                "text": {
+                  "value": "{{price}} ₽",
+                  "typography": "bodyMedium",
+                  "color": "textSecondary"
+                }
+              },
+              {
+                "type": "label",
+                "text": {
+                  "value": "{{status}}",
+                  "typography": "captionMedium",
+                  "color": "statusPositive"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
