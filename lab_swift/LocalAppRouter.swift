@@ -58,7 +58,7 @@ final class LocalAppRouter: AppRouter {
         navigationController?.popViewController(animated: true)
     }
 
-    private func makeBDUIScreen(config: BDUIScreenConfig) -> BDUIViewController {
+    private func makeBDUIScreen(config: BDUIScreenConfig) -> UIViewController {
         let components = makeBDUIComponents(config: config)
         return BDUIViewController(
             title: config.title,
